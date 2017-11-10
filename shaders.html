@@ -60,20 +60,43 @@
 
 		r = log(sqrt(r));
 
-		return abs(mod(4.0 * r, PI * 2.0) - PI);
+		return abs(mod(4.0 * r, PI * 2.0) - PI) * 3. + .2;
 	}
+
+	float fbm(in vec2 p) {
+		float z = 2.;
+		float rz = 0.;
+		vec2 bp = p;
+		for(float i = 1.; i < 6.; i++) {
+			rz += abs((smoothNoise(p) - .5) * 2.) / z;
+			z = z * 2.;
+			p = p * 2.;
+		}
+		return rz;
+	}
+
+	// float dualfbm(in vec2 p) {
+	// 	vec2 p2 = p * .7;
+	// 	vec2 basis = vec2( fbm(p2 - uTime * .15 * 1.6), fbm(p2 + uTime * .15 * 1.7) );
+	// 	basis = (basis - .5) * 2.;
+	// 	p += basis;
+
+	// 	return fbm(p * makem2(uTime * .15 * 2.));
+	// }
 
 	void main() {
 
-		vec2 p = gl_FragCoord.xy / uResolution.xy;
+		vec2 p = gl_FragCoord.xy / uResolution.xy - .5;
 
 		p.x *= uResolution.x / uResolution.y;
 
-		float rz = 1.0;
+		float rz = 1.0 * fbm(p);
 
-		p /= exp(mod(uTime * 0.15, PI));
+		p /= exp(mod(uTime * 1.15, PI));
 
-		rz *= abs(circ(p));
+		p *= 4.;
+
+		rz *= pow( abs(.1 - circ(p)), .9);
 
 		vec3 col = vec3(0.2, 0.1, 0.643) / rz;
 
