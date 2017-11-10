@@ -98,7 +98,7 @@
 
 		rz *= pow( abs(.1 - circ(p)), .9);
 
-		vec3 col = vec3(0.2, 0.1, 0.643) / rz;
+		vec3 col = vec3(0.5 * sin(uTime), 0.1, 0.643) / rz;
 
 		// https://youtu.be/ms1_xM2JVc0?list=WL&t=10998 (3:03:18)
 		// float wave = fract((10000. * sin(16.0 * PI * (128. * position.x + 1024. * position.y))) / 2.0);
