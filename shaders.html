@@ -4,7 +4,8 @@
 <script id="shader-fs" type="x-shader/x-fragment">
 	precision highp float;
 
-	const float PI = 3.14159265359;
+	// const float PI = 3.14159265359;
+	#define PI 3.14159265359
 
 	uniform float uTime;
 	uniform vec2 uResolution;
@@ -84,26 +85,90 @@
 	// 	return fbm(p * makem2(uTime * .15 * 2.));
 	// }
 
+	float pancake(vec2 p, vec2 pos, float r) {
+	    return floor(length((pos - p) * PI / r));
+	}
+
+	// float circle(in vec2 _st, in float _radius) {
+	//     vec2 dist = _st - vec2(0.5,0.5);
+	// 	return 1.- step(_radius, dot(dist, dist) / 0.1);
+	// }
+
+	float circle(in vec2 s, in vec2 p, in float r) {
+		return step(length(s - p), .5 * r);
+	}
+
 	void main() {
+//         upload.wikipedia.org/wikipedia/commons/2/2c/2D_affine_transformation_matrix.svg
+// https://upload.wikimedia.org/wikipedia/commons/2/2c/2D_affine_transformation_matrix.svg
 
-		vec2 p = gl_FragCoord.xy / uResolution.xy - .5;
-
+		vec2 p = gl_FragCoord.xy / uResolution.xy;
 		p.x *= uResolution.x / uResolution.y;
 
-		p *= 4.;
+		// p *= 4.;
 
-		float rz = 1.0 * fbm(p);
+		// float rz = 1.0 * fbm(p);
 
-		p /= exp(mod(uTime * 1.5, PI));
+		// p /= exp(mod(uTime * 1.5, PI));
 
-		rz *= pow( abs(.1 - circ(p)), .9);
+		// rz *= pow( abs(.1 - circ(p)), .9);
+		/*
+		float rz = circ(p);
 
 		vec3 col = vec3(0.2, 0.1, 0.643) / rz;
 
+		float z = abs(mod((p.x * p.x + p.y * p.y) / uTime, 255.));
+		*/
 		// https://youtu.be/ms1_xM2JVc0?list=WL&t=10998 (3:03:18)
 		// float wave = fract((10000. * sin(16.0 * PI * (128. * position.x + 1024. * position.y))) / 2.0);
+		/*
+		gl_FragColor = vec4(vec3(z), 1.0);
+		*/
 
-		gl_FragColor = vec4(col, 1.0);
+		// ---
+
+		/*
+		vec2 st = gl_FragCoord.xy / uResolution.xy;
+		st.x *= uResolution.x / uResolution.y;
+		vec3 color;// = vec3(0.0);
+
+		// bottom-left
+		float bs = .005;
+		vec2 bl = smoothstep(vec2(0.1) - bs, vec2(0.1) + bs, st);
+		vec2 tr = smoothstep(vec2(0.1) - bs, vec2(0.1) + bs, 1.0 - st);   // top-right
+		color = vec3(bl.x * bl.y * tr.x * tr.y);
+
+		//     cos sin
+		//     -sin cos
+
+		// top-right 
+		// vec2 tr = step(vec2(0.1),1.0-st);
+		// pct *= tr.x * tr.y;
+
+		color = vec3(st.r, st.g, 1.) + color * .1;
+
+		gl_FragColor = vec4(color,1.0) * pancake(st, vec2(.6), 1.);
+
+		st = st * 10.;
+		float d = (length(mod(st, 2.)));
+		gl_FragColor = vec4(vec3( d ), 1.);
+		*/
+
+		// ---
+
+		float sz = 20. * PI;
+
+		vec3 sh1 = vec3(
+			sin(p.x * sz) * cos(p.y * sz) > tan(PI)
+		);
+		
+		gl_FragColor = vec4(
+			vec3(
+				circle(p, vec2(.5), .9)
+			) * sh1 * vec3(p + 0.5, 1.), 
+			1.
+		);
+
 	}
 </script>
 
